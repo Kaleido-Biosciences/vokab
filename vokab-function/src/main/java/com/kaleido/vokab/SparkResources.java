@@ -1,10 +1,9 @@
 package com.kaleido.vokab;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kaleido.vokab.service.DynamoDbService;
 import com.kaleido.vokab.util.JsonTransformer;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +15,7 @@ import static spark.Spark.*;
  */
 @Slf4j
 public class SparkResources {
-
+    private static DynamoDbService db = new DynamoDbService();
 
     public static void defineResources() {
 
@@ -28,24 +27,21 @@ public class SparkResources {
 
         //Aliases routes
         get("/aliases", (request, response) -> {
-            //todo find the aliases
+            //todo think more about status code
             response.status(200);
-            return null; //todo return something
+            return db.aliases();
         }, new JsonTransformer());
-
+        //todo setup more routes including post and delete
 
         //Concepts routes
+        //todo setup more routes including post and delete
 
+        get("/health", (request, response) -> {
+            response.status(200);
+            return "Alive";
+        }, new JsonTransformer());
 
         //demo stuff - can be removed
-
-        //handle GET
-        get("/ping", (request, response) -> {
-            Map<String, String> pong = new HashMap<>();
-            pong.put("pong", "Hello, World!");
-            response.status(200);
-            return pong;
-        }, new JsonTransformer());
 
         //handle POST
         post("/ping", (request, response) -> {
