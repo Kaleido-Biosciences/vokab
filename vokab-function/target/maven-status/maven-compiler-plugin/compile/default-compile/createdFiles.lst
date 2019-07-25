@@ -1,3 +1,10 @@
 com/kaleido/vokab/VokabHandler.class
+com/kaleido/vokab/domain/Alias$AliasBuilder.class
 com/kaleido/vokab/domain/Alias.class
+com/kaleido/vokab/util/JsonTransformer.class
+com/kaleido/vokab/service/DynamoDbService.class
+com/kaleido/vokab/SparkResources.class
+com/kaleido/vokab/domain/Concept$ConceptBuilder.class
+com/kaleido/vokab/service/ConceptRepository.class
+com/kaleido/vokab/service/AliasRepository.class
 com/kaleido/vokab/domain/Concept.class

@@ -1,6 +1,8 @@
 package com.kaleido.vokab;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kaleido.vokab.service.AliasRepository;
 import com.kaleido.vokab.service.DynamoDbService;
 import com.kaleido.vokab.util.JsonTransformer;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,11 @@ import static spark.Spark.*;
  */
 @Slf4j
 public class SparkResources {
-    private static DynamoDbService db = new DynamoDbService();
+
+
+    private static DynamoDbService dbService = new DynamoDbService();
+    private static DynamoDBMapper mapper = new DynamoDBMapper(dbService.getDynamoDB());
+    private static AliasRepository aliasRepository = AliasRepository.of(mapper);
 
     public static void defineResources() {
 
@@ -29,7 +35,7 @@ public class SparkResources {
         get("/aliases", (request, response) -> {
             //todo think more about status code
             response.status(200);
-            return db.aliases();
+            return aliasRepository.findAll();
         }, new JsonTransformer());
         //todo setup more routes including post and delete
 

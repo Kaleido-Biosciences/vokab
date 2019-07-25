@@ -3,6 +3,7 @@
 ######################
 .aws-sam/
 packaged.yaml
+target/
 
 ######################
 # Eclipse
