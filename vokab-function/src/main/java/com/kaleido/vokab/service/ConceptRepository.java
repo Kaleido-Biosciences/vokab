@@ -1,9 +1,11 @@
 package com.kaleido.vokab.service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.kaleido.vokab.domain.Concept;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class ConceptRepository {
 
     @NonNull
+    @Getter
     private DynamoDBMapper mapper;
 
     public void write(Concept concept){
@@ -29,5 +32,7 @@ public class ConceptRepository {
 
         return mapper.load(Concept.of(uuid));
     }
-
+    public int count(){
+        return mapper.count(Concept.class, new DynamoDBQueryExpression<>());
+    }
 }
