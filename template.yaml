@@ -3,19 +3,22 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   SAM template for the Vokab App
 
-Globals: # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-  Function:
-    Timeout: 20
-
-
 Resources:
   VokabFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
+      Timeout: 20
       CodeUri: vokab-function
       Handler: com.kaleido.vokab.VokabHandler::handleRequest
       Runtime: java8
-      #add a policy to enable CRUD on Dynamodb
+      Policies:
+        -
+          DynamoDBCrudPolicy:
+            TableName: vokab-alias
+        -
+          DynamoDBCrudPolicy:
+            TableName: vokab-concept
+
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
@@ -25,6 +28,7 @@ Resources:
           Properties:
             Path: /{vokab+} # intercept all path calls to vokab
             Method: ANY # Any HTTP method
+
   DynamoDBAliasTable:
     Type: AWS::DynamoDB::Table
     Properties:
