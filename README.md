@@ -1,23 +1,4 @@
-#TODO -- rewrite this
-
-This is a sample template for AWS - Below is a brief explanation of what we have generated for you:
-
-```bash
-├── README.md                                   <-- This instructions file
-├── HelloWorldFunction                          <-- Source for HelloWorldFunction Lambda Function
-│   ├── pom.xml                                 <-- Java dependencies
-│   └── src
-│       ├── main
-│       │   └── java
-│       │       └── helloworld
-│       │           ├── App.java                <-- Lambda function code
-│       │           └── GatewayResponse.java    <-- POJO for API Gateway Responses object 
-│       └── test                                <-- Unit tests
-│           └── java
-│               └── helloworld
-│                   └── AppTest.java
-└── template.yaml
-```
+# VOKAB
 
 ## Requirements
 
@@ -54,12 +35,12 @@ If the previous command ran successfully you should now be able to hit the follo
 
 ```yaml
 ...
-Events:
-    HelloWorld:
-        Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-        Properties:
-            Path: /hello
-            Method: get
+      Events:
+        Vokab:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /{vokab+} # intercept all path calls to vokab
+            Method: ANY # Any HTTP method
 ```
 
 ## Packaging and deployment
@@ -68,11 +49,10 @@ AWS Lambda Java runtime accepts either a zip file or a standalone JAR file - We 
 
 ```yaml
 ...
-    HelloWorldFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            CodeUri: target/HelloWorld-1.0.jar
-            Handler: helloworld.App::handleRequest
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: vokab-function
+      Handler: com.kaleido.vokab.VokabHandler::handleRequest
 ```
 
 Firstly, we need a `S3 bucket` where we can upload our Lambda functions packaged as ZIP before we deploy anything - If you don't have a S3 bucket to store code artifacts then this is a good time to create one:
@@ -94,7 +74,7 @@ Next, the following command will create a Cloudformation Stack and deploy your S
 ```bash
 sam deploy \
     --template-file packaged.yaml \
-    --stack-name aws \
+    --stack-name vokab \
     --capabilities CAPABILITY_IAM
 ```
 
@@ -104,7 +84,7 @@ After deployment is complete you can run the following command to retrieve the A
 
 ```bash
 aws cloudformation describe-stacks \
-    --stack-name aws \
+    --stack-name vokab \
     --query 'Stacks[].Outputs'
 ```
 
@@ -113,7 +93,7 @@ aws cloudformation describe-stacks \
 We use `JUnit` for testing our code and you can simply run the following command to run our tests:
 
 ```bash
-cd HelloWorldFunction
+cd vokab-function
 mvn test
 ```
 
@@ -139,14 +119,3 @@ aws cloudformation describe-stacks \
     --stack-name aws --query 'Stacks[].Outputs'
 ```
 
-## Bringing to the next level
-
-Here are a few ideas that you can use to get more acquainted as to how this overall process works:
-
-* Create an additional API resource (e.g. /hello/{proxy+}) and return the name requested through this new path
-* Update unit test to capture that
-* Package & Deploy
-
-Next, you can use the following resources to know more about beyond hello world samples and how others structure their Serverless applications:
-
-* [AWS Serverless Application Repository](https://aws.amazon.com/serverless/serverlessrepo/)
