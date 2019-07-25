@@ -1,14 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  AWS
+  SAM template for the Vokab App
 
-  Sample SAM Template for AWS
-
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-Globals:
+Globals: # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
   Function:
     Timeout: 20
+
 
 Resources:
   VokabFunction:
@@ -17,6 +15,7 @@ Resources:
       CodeUri: vokab-function
       Handler: com.kaleido.vokab.VokabHandler::handleRequest
       Runtime: java8
+      #add a policy to enable CRUD on Dynamodb
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
@@ -26,7 +25,109 @@ Resources:
           Properties:
             Path: /{vokab+} # intercept all path calls to vokab
             Method: ANY # Any HTTP method
+  DynamoDBAliasTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: alias
+          AttributeType: S
+        -
+          AttributeName: conceptId
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST # Could use Provisioned if throughput becomes predictable
+      #      GlobalSecondaryIndexes:
+      #        - GlobalSecondaryIndex
+      KeySchema:
+        -
+          AttributeName: alias
+          KeyType: HASH
+        -
+          AttributeName: conceptId
+          KeyType: RANGE
+      #      LocalSecondaryIndexes:
+      #        - LocalSecondaryIndex
+      #      PointInTimeRecoverySpecification:
+      #        PointInTimeRecoverySpecification
+      #      ProvisionedThroughput:
+      #        ProvisionedThroughput
+      SSESpecification:
+        SSEEnabled: true
+      #      StreamSpecification:
+      #        StreamSpecification
+      TableName: vokab-alias
+      Tags:
+        - Key: application_name
+          Value: vokab
+        - Key: application_type
+          Value: pre_clinical
+        - Key: environment
+          Value: production
+        - Key: department
+          Value: DEA
+        - Key: sponsor
+          Value: mschreiber
+  #      TimeToLiveSpecification:
+  #        TimeToLiveSpecification
 
+  DynamoDBConceptTable:
+    Type: AWS::DynamoDB::Table
+    DependsOn: DynamoDBAliasTable
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: uuid
+          AttributeType: S
+        -
+          AttributeName: scheme
+          AttributeType: S
+        -
+          AttributeName: label
+          AttributeType: S
+
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        -
+          IndexName: scheme-label-index
+          KeySchema:
+            -
+              AttributeName: scheme
+              KeyType: HASH
+            -
+              AttributeName: label
+              KeyType: RANGE
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - uuid
+      KeySchema:
+        -
+          AttributeName: uuit
+          KeyType: Hash
+      #      LocalSecondaryIndexes:
+      #        - LocalSecondaryIndex
+      #      PointInTimeRecoverySpecification:
+      #        PointInTimeRecoverySpecification
+      #      ProvisionedThroughput:
+      #        ProvisionedThroughput
+      SSESpecification:
+        SSEEnabled: true
+      #      StreamSpecification:
+      #        StreamSpecification
+      TableName: vokab-concept
+      Tags:
+        - Key: application_name
+          Value: vokab
+        - Key: application_type
+          Value: pre_clinical
+        - Key: environment
+          Value: production
+        - Key: department
+          Value: DEA
+        - Key: sponsor
+          Value: mschreiber
+  #      TimeToLiveSpecification:
+  #        TimeToLiveSpecification
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
