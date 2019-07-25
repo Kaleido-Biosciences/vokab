@@ -19,13 +19,13 @@ public class Alias {
     private String alias;
 
     @NonNull
-    @DynamoDBRangeKey(attributeName = "termId")
+    @DynamoDBRangeKey(attributeName = "conceptId")
     private String conceptId;
 
     @DynamoDBAttribute(attributeName = "retired")
     @DynamoDBTyped(BOOL)
     private boolean retired;
 
-    @DynamoDBVersionAttribute
+    @DynamoDBVersionAttribute(attributeName = "version")
     private Long version;
 }

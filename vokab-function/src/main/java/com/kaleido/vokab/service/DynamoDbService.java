@@ -95,11 +95,7 @@ public class DynamoDbService {
     }
 
     public Alias findAlias( String alias, String conceptId){
-        Alias template = new Alias();
-        template.setAlias(alias);
-        template.setConceptId(conceptId);
-
-        return getMapper().load(template);
+        return getMapper().load(Alias.of(alias, conceptId));
     }
 
     public PaginatedScanList<Concept> concepts(){
@@ -107,8 +103,7 @@ public class DynamoDbService {
     }
 
     public Concept findConcept(String uuid){
-        Concept template = new Concept();
-        template.setUuid(uuid);
-        return getMapper().load(template);
+
+        return getMapper().load(Concept.of(uuid));
     }
 }

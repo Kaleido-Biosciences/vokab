@@ -21,7 +21,6 @@ public class Concept {
     @DynamoDBHashKey(attributeName = "uuid")
     private String uuid;
 
-    @NonNull
     @DynamoDBAttribute(attributeName = "label")
     @DynamoDBIndexRangeKey(globalSecondaryIndexName = "scheme-label-index")
     private String label;
@@ -29,7 +28,6 @@ public class Concept {
     @DynamoDBAttribute(attributeName = "definition")
     private String definition;
 
-    @NonNull
     @DynamoDBAttribute(attributeName = "scheme")
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "scheme-label-index")
     private String scheme;
