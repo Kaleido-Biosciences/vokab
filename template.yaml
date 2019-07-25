@@ -40,8 +40,6 @@ Resources:
           AttributeName: conceptId
           AttributeType: S
       BillingMode: PAY_PER_REQUEST # Could use Provisioned if throughput becomes predictable
-      #      GlobalSecondaryIndexes:
-      #        - GlobalSecondaryIndex
       KeySchema:
         -
           AttributeName: alias
@@ -49,16 +47,8 @@ Resources:
         -
           AttributeName: conceptId
           KeyType: RANGE
-      #      LocalSecondaryIndexes:
-      #        - LocalSecondaryIndex
-      #      PointInTimeRecoverySpecification:
-      #        PointInTimeRecoverySpecification
-      #      ProvisionedThroughput:
-      #        ProvisionedThroughput
       SSESpecification:
         SSEEnabled: true
-      #      StreamSpecification:
-      #        StreamSpecification
       TableName: vokab-alias
       Tags:
         - Key: application_name
@@ -71,67 +61,54 @@ Resources:
           Value: DEA
         - Key: sponsor
           Value: mschreiber
-  #      TimeToLiveSpecification:
-  #        TimeToLiveSpecification
 
-  DynamoDBConceptTable:
-    Type: AWS::DynamoDB::Table
-    DependsOn: DynamoDBAliasTable
-    Properties:
-      AttributeDefinitions:
-        -
-          AttributeName: uuid
-          AttributeType: S
-        -
-          AttributeName: scheme
-          AttributeType: S
-        -
-          AttributeName: label
-          AttributeType: S
+#  DynamoDBConceptTable:
+#    Type: AWS::DynamoDB::Table
+#    DependsOn: DynamoDBAliasTable
+#    Properties:
+#      AttributeDefinitions:
+#        -
+#          AttributeName: uuid
+#          AttributeType: S
+#        -
+#          AttributeName: scheme
+#          AttributeType: S
+#        -
+#          AttributeName: label
+#          AttributeType: S
+#
+#      BillingMode: PAY_PER_REQUEST
+#      GlobalSecondaryIndexes:
+#        -
+#          IndexName: scheme-label-index
+#          KeySchema:
+#            -
+#              AttributeName: scheme
+#              KeyType: HASH
+#            -
+#              AttributeName: label
+#              KeyType: RANGE
+#          Projection:
+#            ProjectionType: ALL
+#      KeySchema:
+#        -
+#          AttributeName: uuid
+#          KeyType: HASH
+#      SSESpecification:
+#        SSEEnabled: true
+#      TableName: vokab-concept
+#      Tags:
+#        - Key: application_name
+#          Value: vokab
+#        - Key: application_type
+#          Value: pre_clinical
+#        - Key: environment
+#          Value: production
+#        - Key: department
+#          Value: DEA
+#        - Key: sponsor
+#          Value: mschreiber
 
-      BillingMode: PAY_PER_REQUEST
-      GlobalSecondaryIndexes:
-        -
-          IndexName: scheme-label-index
-          KeySchema:
-            -
-              AttributeName: scheme
-              KeyType: HASH
-            -
-              AttributeName: label
-              KeyType: RANGE
-          Projection:
-            ProjectionType: INCLUDE
-            NonKeyAttributes:
-              - uuid
-      KeySchema:
-        -
-          AttributeName: uuid
-          KeyType: Hash
-      #      LocalSecondaryIndexes:
-      #        - LocalSecondaryIndex
-      #      PointInTimeRecoverySpecification:
-      #        PointInTimeRecoverySpecification
-      #      ProvisionedThroughput:
-      #        ProvisionedThroughput
-      SSESpecification:
-        SSEEnabled: true
-      #      StreamSpecification:
-      #        StreamSpecification
-      TableName: vokab-concept
-      Tags:
-        - Key: application_name
-          Value: vokab
-        - Key: application_type
-          Value: pre_clinical
-        - Key: environment
-          Value: production
-        - Key: department
-          Value: DEA
-        - Key: sponsor
-          Value: mschreiber
-  #      TimeToLiveSpecification:
-  #        TimeToLiveSpecification
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
