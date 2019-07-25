@@ -106,7 +106,7 @@ Resources:
               - uuid
       KeySchema:
         -
-          AttributeName: uuit
+          AttributeName: uuid
           KeyType: Hash
       #      LocalSecondaryIndexes:
       #        - LocalSecondaryIndex
