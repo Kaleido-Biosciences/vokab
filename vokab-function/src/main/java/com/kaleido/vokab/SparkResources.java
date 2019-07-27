@@ -2,6 +2,7 @@ package com.kaleido.vokab;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kaleido.vokab.domain.Alias;
 import com.kaleido.vokab.service.AliasRepository;
 import com.kaleido.vokab.service.DynamoDbService;
 import com.kaleido.vokab.util.JsonTransformer;
@@ -22,6 +23,7 @@ public class SparkResources {
     private static DynamoDbService dbService = new DynamoDbService();
     private static DynamoDBMapper mapper = new DynamoDBMapper(dbService.getDynamoDB());
     private static AliasRepository aliasRepository = AliasRepository.of(mapper);
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static void defineResources() {
 
@@ -37,8 +39,13 @@ public class SparkResources {
             response.status(200);
             return aliasRepository.findAll();
         }, new JsonTransformer());
-        //todo setup more routes including post and delete
 
+        post("/aliases", (request, response) -> {
+            Alias alias = objectMapper.readValue(request.body(), Alias.class);
+            aliasRepository.write(alias);
+            response.status(201);
+            return "";
+        });
         //Concepts routes
         //todo setup more routes including post and delete
 
