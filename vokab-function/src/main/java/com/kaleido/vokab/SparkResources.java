@@ -8,9 +8,6 @@ import com.kaleido.vokab.service.DynamoDbService;
 import com.kaleido.vokab.util.JsonTransformer;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static spark.Spark.*;
 
 /**
@@ -55,18 +52,18 @@ public class SparkResources {
         }, new JsonTransformer());
 
         //demo stuff - can be removed
-
-        //handle POST
-        post("/ping", (request, response) -> {
-            Map<String, Object> pong = new HashMap<>();
-            Map body = new ObjectMapper().readValue(request.body(), Map.class);
-            pong.put("objectYouPosted", body);
-            return pong;
-        }, new JsonTransformer());
-
-        post("/path/to/resource", (request, response) -> {
-            log.info("request body is {}", request.body());
-            return "thanks for the post";
-        }, new JsonTransformer());
+//
+//        //handle POST
+//        post("/ping", (request, response) -> {
+//            Map<String, Object> pong = new HashMap<>();
+//            Map body = new ObjectMapper().readValue(request.body(), Map.class);
+//            pong.put("objectYouPosted", body);
+//            return pong;
+//        }, new JsonTransformer());
+//
+//        post("/path/to/resource", (request, response) -> {
+//            log.info("request body is {}", request.body());
+//            return "thanks for the post";
+//        }, new JsonTransformer());
     }
 }
