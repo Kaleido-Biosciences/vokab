@@ -5,12 +5,11 @@ import lombok.*;
 
 import static com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperFieldModel.DynamoDBAttributeType.BOOL;
 import static com.kaleido.vokab.service.DynamoDbService.ALIAS_TABLE_NAME;
-import static lombok.AccessLevel.*;
 
 @Data
-@NoArgsConstructor(access = PROTECTED)
+@NoArgsConstructor
 @RequiredArgsConstructor(staticName = "of")
-@Builder @AllArgsConstructor
+@Builder @AllArgsConstructor(staticName = "of")
 @DynamoDBTable(tableName = ALIAS_TABLE_NAME)
 public class Alias {
 
