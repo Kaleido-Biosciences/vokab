@@ -38,4 +38,5 @@ public class Concept {
     @DynamoDBAttribute(attributeName = "relationships")
     private Map<String, List<String>> relationships;
 
+    //todo add Version optimistic lock
 }

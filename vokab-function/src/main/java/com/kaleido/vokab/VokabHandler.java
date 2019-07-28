@@ -6,7 +6,6 @@ import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spark.SparkLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-import com.kaleido.vokab.service.DynamoDbService;
 import lombok.extern.slf4j.Slf4j;
 import spark.Spark;
 
@@ -16,7 +15,6 @@ import java.io.OutputStream;
 
 @Slf4j
 public class VokabHandler implements RequestStreamHandler {
-    private final DynamoDbService dynamoDbService = new DynamoDbService();
 
     private static SparkLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
 
