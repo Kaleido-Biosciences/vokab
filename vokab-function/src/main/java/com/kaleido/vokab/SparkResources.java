@@ -1,6 +1,7 @@
 package com.kaleido.vokab;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kaleido.vokab.domain.Alias;
 import com.kaleido.vokab.domain.Concept;
@@ -36,21 +37,31 @@ public class SparkResources {
         });
 
         //Aliases routes
-        get("/aliases", (request, response) -> {
-            //todo think more about status code
-            response.status(200);
-            return aliasRepository.findAll();
-        }, new JsonTransformer());
+        get("/aliases", (request, response) -> aliasRepository.findAll(), new JsonTransformer());
 
         get("/aliases/:alias", (request, response) -> {
-           String alias = request.params(":alias");
-           return aliasRepository.findAllByAlias(alias);
+            String alias = request.params(":alias");
+            final PaginatedScanList<Alias> allByAlias = aliasRepository.findAllByAlias(alias);
+
+            if(allByAlias != null && allByAlias.size() > 0) {
+                return allByAlias;
+            }else{
+                response.status(404);
+                return alias+" Not Found";
+            }
         }, new JsonTransformer());
 
         get("/aliases/:alias/:conceptId", (request, response) -> {
             String alias = request.params(":alias");
             String conceptId = request.params(":conceptId");
-            return aliasRepository.findOne(alias, conceptId);
+
+            final Alias one = aliasRepository.findOne(alias, conceptId);
+            if(one != null) {
+                return one;
+            }else {
+                response.status(404);
+                return alias+"/"+conceptId+" Not Found";
+            }
         }, new JsonTransformer());
         
         post("/aliases", (request, response) -> {
@@ -87,8 +98,15 @@ public class SparkResources {
         }, new JsonTransformer());
 
         get("/concepts/:uuid", (request, response) -> {
-            String alias = request.params(":uuid");
-            return conceptRepository.findOne(alias);
+            String uuid = request.params(":uuid");
+            final Concept concept = conceptRepository.findOne(uuid);
+
+            if(concept != null){
+            return concept;
+            } else {
+                response.status(404);
+                return uuid+" Not Found";
+            }
         }, new JsonTransformer());
 
         post("/concepts", (request, response) -> {
@@ -117,10 +135,8 @@ public class SparkResources {
         //todo setup a route to search for concepts by label and schema
         
 
-        get("/health", (request, response) -> {
-            response.status(200);
-            return "Alive";
-        });
+        get("/health", (request, response) -> "alive");
+        get("/vokab", (request, response) -> "alive");
 
     }
 }
