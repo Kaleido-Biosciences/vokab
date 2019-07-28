@@ -93,12 +93,10 @@ public class SparkResources {
 
         post("/concepts", (request, response) -> {
             Concept concept = objectMapper.readValue(request.body(), Concept.class);
-
-            //todo check if the posted Concept has an concept and a conceptId
-
+            //todo test if concept has a uuid
             conceptRepository.write(concept);
-
             Concept saved = conceptRepository.findOne(concept.getUuid());
+
             response.status(201);
             return saved;
         }, new JsonTransformer());
@@ -122,7 +120,7 @@ public class SparkResources {
         get("/health", (request, response) -> {
             response.status(200);
             return "Alive";
-        }, new JsonTransformer());
+        });
 
     }
 }
