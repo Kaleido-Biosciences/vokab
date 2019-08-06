@@ -30,6 +30,16 @@ Resources:
             Path: /{vokab+} # intercept all path calls to vokab
             Method: ANY # Any HTTP method
 
+  ApiCognitoAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      IdentitySource: 'method.request.header.Authorization'
+      Name: VokabCognitoAuthorizer
+      ProviderARNs:
+        - 'arn:aws:cognito-idp:us-east-1:001507046168:userpool/us-east-1_5sIZNkSeN'
+      RestApiId: !Ref ServerlessRestApi
+      Type: COGNITO_USER_POOLS
+
   DynamoDBAliasTable:
     Type: AWS::DynamoDB::Table
     Properties:
