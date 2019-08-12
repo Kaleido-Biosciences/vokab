@@ -4,6 +4,31 @@ Description: >
   SAM template for the Vokab App
 
 Resources:
+#  ApiCognitoAuthorizer:
+#    Type: AWS::ApiGateway::Authorizer
+#    Properties:
+#      IdentitySource: 'method.request.header.Authorization'
+#      Name: VokabCognitoAuthorizer
+#      ProviderARNs:
+#        - 'arn:aws:cognito-idp:us-east-1:001507046168:userpool/us-east-1_5sIZNkSeN'
+#      RestApiId: !Ref ServerlessRestApi
+#      Type: COGNITO_USER_POOLS
+
+
+  VokabApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: VokabCognitoAuthorizer
+        Authorizers:
+          VokabCognitoAuthorizer:
+            UserPoolArn: 'arn:aws:cognito-idp:us-east-1:001507046168:userpool/us-east-1_5sIZNkSeN'
+            Identity: # OPTIONAL
+              Header: Authorization # OPTIONAL; Default: 'Authorization'   <- required for your set-up for authorizer->
+
+
   VokabFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -22,23 +47,34 @@ Resources:
 
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          PARAM1: VALUE
+          COGNITO_USER_POOL_CLIENT_ID: "3f9o14ggjuj514562mqg2qmhvt" #currently the test DEA client
       Events:
-        Vokab:
+        Health:
+          Type: Api
+          Properties:
+            RestApiId: !Ref VokabApi
+            Path: /health
+            Method: GET
+            #Over ride default. Make the endpoint accessible without Authorization
+            Auth:
+              Authorizer: NONE
+        Vokab: # essentially a second health endpoint
+          Type: Api
+          Properties:
+            RestApiId: !Ref VokabApi
+            Path: /vokab
+            Method: GET
+            #Over ride default. Make the endpoint accessible without Authorization
+            Auth:
+              Authorizer: NONE
+        ProxyAny:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /{vokab+} # intercept all path calls to vokab
+            RestApiId: !Ref VokabApi
+            Path: /{proxy+}
             Method: ANY # Any HTTP method
 
-  ApiCognitoAuthorizer:
-    Type: AWS::ApiGateway::Authorizer
-    Properties:
-      IdentitySource: 'method.request.header.Authorization'
-      Name: VokabCognitoAuthorizer
-      ProviderARNs:
-        - 'arn:aws:cognito-idp:us-east-1:001507046168:userpool/us-east-1_5sIZNkSeN'
-      RestApiId: !Ref ServerlessRestApi
-      Type: COGNITO_USER_POOLS
+
 
   DynamoDBAliasTable:
     Type: AWS::DynamoDB::Table
@@ -126,10 +162,16 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   VokabApi:
     Description: "API Gateway endpoint URL for Prod stage for Vokab function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vokab/"
+    Value: !Sub "https://${VokabApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vokab/"
   VokabFunction:
     Description: "Vokab Lambda Function ARN"
     Value: !GetAtt VokabFunction.Arn
   VokabFunctionIamRole:
     Description: "Implicit IAM Role created for Vokab function"
     Value: !GetAtt VokabFunctionRole.Arn
+  DynamoDBAliasTable:
+    Description: "Vokab Alias Table"
+    Value: !GetAtt DynamoDBAliasTable.Arn
+  DynamoDBConceptTable:
+    Description: "Vokab Concept Table"
+    Value: !GetAtt DynamoDBConceptTable.Arn
