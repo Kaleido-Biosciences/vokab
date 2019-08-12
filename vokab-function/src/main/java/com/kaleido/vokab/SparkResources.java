@@ -2,6 +2,7 @@ package com.kaleido.vokab;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kaleido.vokab.domain.Alias;
 import com.kaleido.vokab.domain.Concept;
@@ -13,11 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import static spark.Spark.*;
 
+
 /**
  * Sets up resources to deal with HTTP requests
  */
 @Slf4j
-public class SparkResources {
+class SparkResources {
 
 
     private static DynamoDbService dbService = new DynamoDbService();
@@ -28,7 +30,7 @@ public class SparkResources {
     
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    public static void defineResources() {
+    static void defineResources() {
 
         //intercept requests
         before((request, response) -> {
@@ -67,7 +69,7 @@ public class SparkResources {
         post("/aliases", (request, response) -> {
             Alias alias = objectMapper.readValue(request.body(), Alias.class);
 
-            //todo check if the posted Alias has an alias and a conceptId
+            if(alias.getAlias() == null || alias.getConceptId() == null) throw new IllegalArgumentException("alias and conceptId cannot be null");
 
             aliasRepository.write(alias);
 
@@ -111,7 +113,8 @@ public class SparkResources {
 
         post("/concepts", (request, response) -> {
             Concept concept = objectMapper.readValue(request.body(), Concept.class);
-            //todo test if concept has a uuid
+            if (concept.getUuid() == null || concept.getScheme() == null) throw new IllegalArgumentException("uuid and scheme can not be null");
+
             conceptRepository.write(concept);
             Concept saved = conceptRepository.findOne(concept.getUuid());
 
@@ -135,8 +138,18 @@ public class SparkResources {
         //todo setup a route to search for concepts by label and schema
         
 
+        //health check end points
         get("/health", (request, response) -> "alive");
         get("/vokab", (request, response) -> "alive");
 
+        //Handle IllegalArgument Exceptions
+        exception(IllegalArgumentException.class, (e, req, res) -> {
+            res.status(400);
+            try {
+                res.body(objectMapper.writeValueAsString(new VokabError(e)));
+            } catch (JsonProcessingException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 }
