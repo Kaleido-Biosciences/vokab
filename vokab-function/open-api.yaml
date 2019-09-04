@@ -13,6 +13,8 @@ servers:
 paths:
   /aliases:
     get:
+      security:
+        - bearerAuth: []
       summary: Retrieve a list of aliases
       responses:
         200:
@@ -25,6 +27,8 @@ paths:
                   $ref: '#/components/schemas/Alias'
 
     post:
+      security:
+        - bearerAuth: []
       summary: Create an alias
       parameters:
         - in: body
@@ -44,6 +48,8 @@ paths:
 
   /aliases/{name}:
     get:
+      security:
+        - bearerAuth: []
       summary: Get the aliases with the specified `name`.
       description: >
         An alias is a name/ concept pair therefore an alias name might
@@ -70,6 +76,8 @@ paths:
 
   /aliases/{name}/concept/{conceptId}:
     get:
+      security:
+        - bearerAuth: []
       summary: Get's a specific `alias`
       description: >
         Gets an alias with the combination of it's name and the `id` of the concept that it is an alias for.
@@ -97,6 +105,8 @@ paths:
         404:
           description: No alias with the specified id was found
     delete:
+      security:
+        - bearerAuth: []
       summary: deletes the specific alias
       parameters:
         - name: name
@@ -118,6 +128,8 @@ paths:
           description: No alias found to be deleted
   /concepts:
     get:
+      security:
+        - bearerAuth: []
       summary: Get the list of concepts
       responses:
         200:
@@ -129,6 +141,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Concept'
     post:
+      security:
+        - bearerAuth: []
       summary: Create a concept
       parameters:
         - in: body
@@ -150,6 +164,8 @@ paths:
 
   /concepts/{conceptId}:
     get:
+      security:
+        - bearerAuth: []
       summary: Find a concept using it's unique id
       parameters:
         - in: path
@@ -168,6 +184,8 @@ paths:
           description: A concept was not found with that Id
 
     delete:
+      security:
+        - bearerAuth: []
       summary: Delete a concept with this id
       parameters:
         - in: path
@@ -196,6 +214,11 @@ paths:
                 'alive'
 
 components:
+  securitySchemes:
+    jwtBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Alias:
       type: object
