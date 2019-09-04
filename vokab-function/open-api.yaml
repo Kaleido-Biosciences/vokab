@@ -1,0 +1,286 @@
+openapi: 3.0.1
+info:
+  title: Vokab API
+  description: The Vokab API allows the creation, maintenance and search of controlled vocabularies.
+  version: 0.1.0
+  contact:
+    name: Mark Schreiber
+    url: https://www.kalieo.com
+    email: mark.schreiber@kaleido.com
+servers:
+  - url: 'https://${VokabApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vokab/'
+    description: Production endpoint at AWS API Gateway
+paths:
+  /aliases:
+    get:
+      summary: Retrieve a list of aliases
+      responses:
+        200:
+          description: A list of aliases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alias'
+
+    post:
+      summary: Create an alias
+      parameters:
+        - in: body
+          name: alias
+          description: the alias to create
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alias'
+      responses:
+        201:
+          description: Alias created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alias'
+
+  /aliases/{name}:
+    get:
+      summary: Get the aliases with the specified `name`.
+      description: >
+        An alias is a name/ concept pair therefore an alias name might
+        be an alias for more than one thing. For example 'Cat' might be an alias for the concept of the mammal and for the
+        concept of the gene with the same name.
+      parameters:
+        - name: name
+          in: path
+          description: the aliases name
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alias'
+        404:
+          description: No Aliases with the specified name were found
+
+  /aliases/{name}/concept/{conceptId}:
+    get:
+      summary: Get's a specific `alias`
+      description: >
+        Gets an alias with the combination of it's name and the `id` of the concept that it is an alias for.
+        The combination of these two parameters makes up the unique key of an alias
+      parameters:
+        - name: name
+          in: path
+          description: the aliases name
+          schema:
+            type: string
+          required: true
+        - name: conceptId
+          in: path
+          schema:
+            type: string
+          description: the id of the concept
+          required: true
+      responses:
+        200:
+          description: The specified Alias
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alias'
+        404:
+          description: No alias with the specified id was found
+    delete:
+      summary: deletes the specific alias
+      parameters:
+        - name: name
+          in: path
+          description: the aliases name
+          schema:
+            type: string
+          required: true
+        - name: conceptId
+          in: path
+          schema:
+            type: string
+          description: the id of the concept
+          required: true
+      responses:
+        200:
+          description: OK, entity deleted
+        404:
+          description: No alias found to be deleted
+  /concepts:
+    get:
+      summary: Get the list of concepts
+      responses:
+        200:
+          description: The list of concepts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Concept'
+    post:
+      summary: Create a concept
+      parameters:
+        - in: body
+          name: concept
+          description: the concept to create
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Concept'
+          required: true
+      responses:
+        200:
+          description: Concept created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Concept'
+
+
+  /concepts/{conceptId}:
+    get:
+      summary: Find a concept using it's unique id
+      parameters:
+        - in: path
+          name: conceptId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: The concept identified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Concept'
+        404:
+          description: A concept was not found with that Id
+
+    delete:
+      summary: Delete a concept with this id
+      parameters:
+        - in: path
+          name: conceptId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Concept is deleted
+        404:
+          description: No concept found with that Id to be deleted
+
+
+  /health:
+    get:
+      summary: Used to health check the application
+      responses:
+        200:
+          description: System is OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              example:
+                'alive'
+
+components:
+  schemas:
+    Alias:
+      type: object
+      description: An alias of a concept. Another name for a concept.
+      properties:
+        alias:
+          type: string
+          description: The name of the alias
+          example: Dog
+        conceptId:
+          type: string
+          description: The unique identifier of the concept that this alias is an alias of
+          example: 1c0dc426-4d0a-43b0-bc6b-7f82971d001e
+        retired:
+          type: boolean
+          example: false
+          description: false if the alias is still an accepted alias or true if it has it been retired/ depricated
+        version:
+          type: integer
+          description: >
+            A version number used for optimistic locking to prevent dirty reads. If you attempt an update with a version
+            number that is not the version currently in the database the update will fail. The version number is
+            automatically incremented with each update.
+          example: 1
+      required:
+        - alias
+        - conceptId
+        -
+    Concept:
+      type: object
+      description: >
+        A concept. The preferred term from a restricted vocabulary. For example _Canis familiaris_ may be the preferred
+        term in a species vocabulary while 'Dog' may be an alias for that term.
+      required:
+        - uuid
+        - label
+      properties:
+        uuid:
+          type: string
+          description: a UUID for the concept
+          example: 1c0dc426-4d0a-43b0-bc6b-7f82971d001e
+        label:
+          type: string
+          description: the preferred name or label for the concept
+          example:
+            Canis familiaris
+        definition:
+          type: string
+          description: A definition for the term
+          example:
+            The domestic dog
+        scheme:
+          type: string
+          description: The scheme or namespace to which the concept belongs
+          example:
+            Animals
+        relationships:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: >
+            A map of relationship types to a list of concept ids that this concept is related to by that type. For example:
+            ```
+            {
+              "childOf": ["48fba205-d02b-44b7-bfd9-2a2718a1e9b8", "7f635e69-a187-46bd-bfc8-a3a9d63a5d25"],
+              "parentOf": ["7e9d73e8-8826-43a8-b4c0-2fe99feb7a9e"]
+            }
+            ```
+            would indicate that this concept is the child of the two concepts identified in the array and the parent
+            of the concept identified by `7e9d73e8-8826-43a8-b4c0-2fe99feb7a9e`
+          example:
+            {
+              "childOf": ["48fba205-d02b-44b7-bfd9-2a2718a1e9b8", "7f635e69-a187-46bd-bfc8-a3a9d63a5d25"],
+              "parentOf": ["7e9d73e8-8826-43a8-b4c0-2fe99feb7a9e"]
+            }
+
+        retired:
+          type: boolean
+          example: false
+          description: false if the concept is still an accepted concept or true if it has it been retired/ depricated
+        version:
+          type: integer
+          description: >
+            A version number used for optimistic locking to prevent dirty reads. If you attempt an update with a version
+            number that is not the version currently in the database the update will fail. The version number is
+            automatically incremented with each update.
