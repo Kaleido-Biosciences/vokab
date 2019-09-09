@@ -54,15 +54,27 @@ public class VokabHandler implements RequestStreamHandler {
             mappings I need to get the resource from the request and set that as the path
          */
         AwsProxyRequest request = objectMapper.readValue(inputStream, AwsProxyRequest.class);
-        // set the path to be the resource
-        request.setPath( request.getResource() );
 
+        log.info("Request path: {}", request.getPath());
+        log.info("Request path parameters: {}", request.getPathParameters());
+        log.info("Requested resource: {}", request.getResource());
+
+        if(request.getResource().equals("/{proxy+}")){
+            //set the path to be the proxy path parameter
+            String param = request.getPathParameters().get("proxy");
+            request.setPath("/"+param);
+        } else {
+            // set the path to be the resource
+            request.setPath(request.getResource());
+        }
         //write the request to an out stream
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         objectMapper.writeValue(out, request);
 
+        inputStream = new ByteArrayInputStream(out.toByteArray());
+
         //proxy the request (a new input stream is made from the modified output stream
-        handler.proxyStream(new ByteArrayInputStream(out.toByteArray()), outputStream, context);
+        handler.proxyStream(inputStream, outputStream, context);
     }
 
 
