@@ -6,23 +6,27 @@ import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spark.SparkLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import spark.Spark;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 @Slf4j
 public class VokabHandler implements RequestStreamHandler {
 
     private static SparkLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
+    private static ObjectMapper objectMapper;
 
     //setup the proxy and the resources
     static {
         try {
             handler = SparkLambdaContainerHandler.getAwsProxyHandler();
+            objectMapper = new ObjectMapper();
+
+            //setup the resource endpoints from our SparkResources class
             SparkResources.defineResources();
+
             Spark.awaitInitialization();
             log.info("Initialized lambda");
         } catch (ContainerInitializationException e) {
@@ -43,7 +47,22 @@ public class VokabHandler implements RequestStreamHandler {
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
             throws IOException {
-        handler.proxyStream(inputStream, outputStream, context);
+
+        /*
+            The handler assigns requests to methods based on the Path and not the Resource. To
+            make the handler resilient to things like Custom domains in API gateway with potentially multiple
+            mappings I need to get the resource from the request and set that as the path
+         */
+        AwsProxyRequest request = objectMapper.readValue(inputStream, AwsProxyRequest.class);
+        // set the path to be the resource
+        request.setPath( request.getResource() );
+
+        //write the request to an out stream
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        objectMapper.writeValue(out, request);
+
+        //proxy the request (a new input stream is made from the modified output stream
+        handler.proxyStream(new ByteArrayInputStream(out.toByteArray()), outputStream, context);
     }
 
 
