@@ -3,9 +3,12 @@ info:
   title: Vokab API
   description: The Vokab API allows the creation, maintenance and search of controlled vocabularies.
   version: 0.1.0
+  license:
+    name: BSD 3-clause
+    url: https://opensource.org/licenses/BSD-3-Clause
   contact:
     name: Mark Schreiber
-    url: https://www.kalieo.com
+    url: https://www.kaliedo.com
     email: mark.schreiber@kaleido.com
 servers:
   - url: 'https://${VokabApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vokab/'

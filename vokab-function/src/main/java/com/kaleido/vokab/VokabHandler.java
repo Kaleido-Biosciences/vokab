@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019. Kaleido Biosciences. All Rights Reserved.
+ */
+
 package com.kaleido.vokab;
 
 import com.amazonaws.serverless.exceptions.ContainerInitializationException;

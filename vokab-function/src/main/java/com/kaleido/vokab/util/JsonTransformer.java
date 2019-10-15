@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019. Kaleido Biosciences. All Rights Reserved.
+ */
+
 package com.kaleido.vokab.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
