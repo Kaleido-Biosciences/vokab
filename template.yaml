@@ -4,15 +4,7 @@ Description: >
   SAM template for the Vokab App
 
 Resources:
-#  ApiCognitoAuthorizer:
-#    Type: AWS::ApiGateway::Authorizer
-#    Properties:
-#      IdentitySource: 'method.request.header.Authorization'
-#      Name: VokabCognitoAuthorizer
-#      ProviderARNs:
-#        - 'arn:aws:cognito-idp:us-east-1:001507046168:userpool/us-east-1_5sIZNkSeN'
-#      RestApiId: !Ref ServerlessRestApi
-#      Type: COGNITO_USER_POOLS
+
 
 
   VokabApi:
