@@ -10,6 +10,23 @@ database using code tables and foreign keys but in a world where you have more t
 keeping everything consistent requires the use of a central service. Vokab provides a REST API to a highly scalable service
 that can be provide values used by data entry UIs or data processing pipelines.
 
+## Concepts & Synonyms
+Concepts and Synonyms are the two objects that Vokab uses to represent a vocabulary. A Concept represents an official
+term and a Synonym is an alternative or commonly used label which, for the purposes of the vocabulary, has the same meaning.
+
+### Concept
+A Concept (represented by `com.kaleido.vokab.domain.Concept`) has, minimally, a `uuid`, a `label` which is the actual term,
+and a `scheme`. A Concept may also optionally have a `definition` a boolean `retired` to indicate if the term is still in
+use or has been replaced, `relationships` and a `version`.
+
+#### Scheme
+
+#### Relationships
+
+#### Version
+
+### Alias
+
 ## Tech and Framework
 * Vokab follows the AWS Severless Application Model (SAM). 
 * At it's core is a Lambda Function that handles REST requests
