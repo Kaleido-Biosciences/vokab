@@ -1,4 +1,23 @@
 # VOKAB
+Vokab is a simple vocabulary (code table) service that lets you store preferred terms and synonyms for various domains.
+It is built to be serverless and highly elastic so it can be used as a robust and scalable source of controlled vocabulary
+for other services and databases.
+
+## Motivation
+To ensure data consistency it is useful to be able to constrain the values that people enter to a controlled vocabulary of
+standard terms and to be able to look up those standards using common synonyms. This is simple to implement in a relational
+database using code tables and foreign keys but in a world where you have more than one database or in a microservice environment
+keeping everything consistent requires the use of a central service. Vokab provides a REST API to a highly scalable service
+that can be provide values used by data entry UIs or data processing pipelines.
+
+## Tech and Framework
+* Vokab follows the AWS Severless Application Model (SAM). 
+* At it's core is a Lambda Function that handles REST requests
+and responses. REST calls are made to an Amazon API Gateway endpoint which delegates those calls to the Lamdba function.
+* The Gateway endpoint is authorized by a Cognito pool (which you will need to set up to fit your needs). The pool client
+will determine if the call to the Lambda function is authorized. 
+* Terms and synonyms are serialized to DynamoDB.
+
 
 ## Requirements
 
@@ -29,9 +48,21 @@ sam build --use-container
 sam local start-api
 ```
 
-If the previous command ran successfully you should now be able to hit the following local endpoint to invoke your function `http://localhost:3000/health`
+If the previous command ran successfully you should now be able to hit the following local endpoint to invoke your function `http://localhost:3000/health`.
 
-**SAM CLI** is used to emulate both Lambda and API Gateway locally and uses our `template.yaml` to understand how to bootstrap this environment (runtime, where the source code is, etc.) - The following excerpt is what the CLI will read in order to initialize an API and its routes:
+#### Local DynamoDB 
+If you want to test creating and querying terms locally you can use the [DynamoDBLocal distribution](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
+The bash script `vokab-function/create-tables.sh` can be used to create tables in DynamoDBLocal that will be required.
+
+#### Template ####
+Copy the `reference-template.yaml` file to `template.yaml` and make any desired adjustments to parameters, particularly 
+paying attention to those with `#Replace` comments. The `template.yaml` file is the default input file for SAM that describes
+the cloud infrastructure. Git is configured through `.gitignore` to not commit this file so you can add your own values
+without worrying about them being pushed to the repo when you push.
+
+**SAM CLI** is used to emulate both Lambda and API Gateway locally and uses our `template.yaml` to understand how to 
+bootstrap this environment (runtime, where the source code is, etc.) - The following excerpt is what the CLI will 
+read in order to initialize an API and its routes:
 
 ```yaml
 ...
@@ -45,7 +76,8 @@ If the previous command ran successfully you should now be able to hit the follo
 
 ## Packaging and deployment
 
-AWS Lambda Java runtime accepts either a zip file or a standalone JAR file - We use the latter in this example. SAM will use `CodeUri` property to know where to look up for both application and dependencies:
+AWS Lambda Java runtime accepts either a zip file or a standalone JAR file - We use the latter in this example. 
+SAM will use `CodeUri` property to know where to look up for both application and dependencies:
 
 ```yaml
 ...
@@ -55,7 +87,8 @@ AWS Lambda Java runtime accepts either a zip file or a standalone JAR file - We 
       Handler: com.kaleido.vokab.VokabHandler::handleRequest
 ```
 
-Firstly, we need a `S3 bucket` where we can upload our Lambda functions packaged as ZIP before we deploy anything - If you don't have a S3 bucket to store code artifacts then this is a good time to create one:
+Firstly, we need a `S3 bucket` where we can upload our Lambda functions packaged as ZIP before we deploy 
+anything - If you don't have a S3 bucket to store code artifacts then this is a good time to create one:
 
 ```bash
 aws s3 mb s3://BUCKET_NAME
@@ -77,8 +110,6 @@ sam deploy \
     --stack-name vokab \
     --capabilities CAPABILITY_IAM
 ```
-
-> **See [Serverless Application Model (SAM) HOWTO Guide](https://github.com/awslabs/serverless-application-model/blob/master/HOWTO.md) for more details in how to get started.**
 
 After deployment is complete you can run the following command to retrieve the API Gateway Endpoint URL:
 
