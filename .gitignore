@@ -4,6 +4,7 @@
 .aws-sam/
 packaged.yaml
 **/target/
+template.yaml
 
 
 ######################

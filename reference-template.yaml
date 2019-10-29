@@ -1,3 +1,4 @@
+## COPY THIS TEMPLATE AND ADD YOU VALUES FOR UserPoolArn and COGNITO_USER_POOL_CLIENT_ID
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
@@ -13,7 +14,7 @@ Resources:
         DefaultAuthorizer: VokabCognitoAuthorizer
         Authorizers:
           VokabCognitoAuthorizer:
-            UserPoolArn: 'arn:aws:cognito-idp:us-east-1:001507046168:userpool/us-east-1_5sIZNkSeN'
+            UserPoolArn: # REPLACE with your user pool arn
             Identity: # OPTIONAL
               Header: Authorization # OPTIONAL; Default: 'Authorization'   <- required for your set-up for authorizer->
 
@@ -36,7 +37,7 @@ Resources:
 
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          COGNITO_USER_POOL_CLIENT_ID: "3f9o14ggjuj514562mqg2qmhvt" #currently the test DEA client
+          COGNITO_USER_POOL_CLIENT_ID: #REPLACE with your user pool client id
       Events:
         Health:
           Type: Api
@@ -63,8 +64,6 @@ Resources:
             Path: /{proxy+}
             Method: ANY # Any HTTP method
 
-
-
   DynamoDBAliasTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -89,14 +88,8 @@ Resources:
       Tags:
         - Key: application_name
           Value: vokab
-        - Key: application_type
-          Value: pre_clinical
         - Key: environment
           Value: production
-        - Key: department
-          Value: DEA
-        - Key: sponsor
-          Value: mschreiber
 
   DynamoDBConceptTable:
     Type: AWS::DynamoDB::Table
@@ -134,16 +127,12 @@ Resources:
         SSEEnabled: true
       TableName: vokab-concept
       Tags:
+        - #You can customize as needed
         - Key: application_name
           Value: vokab
-        - Key: application_type
-          Value: pre_clinical
         - Key: environment
           Value: production
-        - Key: department
-          Value: DEA
-        - Key: sponsor
-          Value: mschreiber
+
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
