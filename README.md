@@ -20,8 +20,14 @@ and a `scheme`. A Concept may also optionally have a `definition` a boolean `ret
 use or has been replaced, `relationships` and a `version`.
 
 #### Scheme
+The `scheme` of a Concept gives the concept some context and can be used to disambiguate homonyms. 
+For example "Mole" in a "Scientific units" scheme is not the same concept as "Mole" in an "Animals" scheme.
 
 #### Relationships
+Relationships can be used to establish simple relationships between Concepts. There are many ways that this could
+be used but one example would be to represent a hierarchical taxonomy. If, for example, you wished to assert that Concept A
+is the parent of Concepts B and C then you could do that by adding a relationship with the a key like `parentOf` and 
+a `List<String>` containing the `uuid`s of B` and `C`. Effectively relationships are expressed as a multimap.
 
 #### Version
 
